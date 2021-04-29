@@ -56,6 +56,37 @@ def print_grid(grid):
             print("-" * 13 + " " + "-" * 13 + " " + "-" * 13)
 
 
+def is_digit_placement_valid(grid, digit, row, col):
+    """Checks if the digit can be placed in the given row and col."""
+
+    for i in range(9):
+        if grid[row][i] == digit:
+            return False
+        if grid[i][col] == digit:
+            return False
+
+    sub_square = grid[(row // 3) * 3 : (row // 3) * 3 + 3]
+    sub_square = [x[(col // 3) * 3 : (col // 3) * 3 + 3] for x in sub_square]
+    sub_square = [digit for x in sub_square for digit in x]
+
+    if digit in sub_square:
+        return False
+
+    return True
+
+
+def get_possible_digits(grid, row, col):
+    """
+    Returns a list of all the possible digits that can be placed in the given
+    row and col.
+    """
+    possible_digits = []
+    for digit in range(1, 10):
+        if is_digit_placement_valid(grid, digit, row, col):
+            possible_digits.append(digit)
+    return possible_digits
+
+
 if __name__ == "__main__":
     grid = get_puzzle_state_from_user()
 
@@ -63,3 +94,12 @@ if __name__ == "__main__":
         print("Invalid input detected.")
     else:
         print_grid(grid)
+
+        for row in range(9):
+            print(f"Row #{row + 1}")
+            for col in range(9):
+                if grid[row][col] is not None:
+                    continue
+
+                print(f"\tCol #{col + 1}: ", end="")
+                print(get_possible_digits(grid, row, col))
