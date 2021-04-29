@@ -36,11 +36,30 @@ def get_puzzle_state_from_user():
     return grid
 
 
+def print_grid(grid):
+    """Prints the puzzle grid in a beautiful manner."""
+    print("-" * 13 + " " + "-" * 13 + " " + "-" * 13)
+    for i, row in enumerate(grid, 1):
+        print("|", end=" ")
+        for j, digit in enumerate(row, 1):
+            if digit is None:
+                print(" ", end=" |")
+            else:
+                print(digit, end=" |")
+            if j < 9 and j % 3 == 0:
+                print(" | ", end="")
+            else:
+                print(" ", end="")
+        print()
+        print("-" * 13 + " " + "-" * 13 + " " + "-" * 13)
+        if i < 9 and i % 3 == 0:
+            print("-" * 13 + " " + "-" * 13 + " " + "-" * 13)
+
+
 if __name__ == "__main__":
     grid = get_puzzle_state_from_user()
 
     if not grid:
         print("Invalid input detected.")
     else:
-        for row in grid:
-            print(row)
+        print_grid(grid)
