@@ -17,18 +17,18 @@ def get_puzzle_state_from_user():
     print("by a single space. For empty squares, use 0.")
     print()
     grid = []
-    for i in range(9):
+    for _ in range(9):
         row = input()
         try:
             digits = list(map(int, row.split()))
         except ValueError:
-            return
+            return None
 
-        if len(digits) < 9:
-            return
+        if len(digits) < 9 or len(digits) > 9:
+            return None
         for digit in digits:
             if digit > 9 or digit < 0:
-                return
+                return None
 
         digits = [digit if digit != 0 else None for digit in digits]
         grid.append(digits)
@@ -80,6 +80,10 @@ def get_possible_digits(grid, row, col):
     Returns a list of all the possible digits that can be placed in the given
     row and col.
     """
+    # Only empty cells call be filled.
+    if grid[row][col] is not None:
+        return [grid[row][col]]
+
     possible_digits = []
     for digit in range(1, 10):
         if is_digit_placement_valid(grid, digit, row, col):
@@ -87,19 +91,46 @@ def get_possible_digits(grid, row, col):
     return possible_digits
 
 
-if __name__ == "__main__":
-    grid = get_puzzle_state_from_user()
+def is_solved(grid):
+    """Returns True if the given grid is solved correctly, False otherwise."""
+    for row in range(9):
+        for col in range(9):
+            if grid[row][col] is None:
+                return False
+            for k in range(9):
+                if col == k:
+                    continue
+                if grid[row][k] == grid[row][col]:
+                    return False
 
-    if not grid:
+    return True
+
+
+def has_empty_cells(grid):
+    """Returns True if there is at least one empty cell in the given grid."""
+    for row in range(9):
+        for col in range(9):
+            if grid[row][col] is None:
+                return True
+
+    return False
+
+
+if __name__ == "__main__":
+    user_grid = get_puzzle_state_from_user()
+
+    if not user_grid:
         print("Invalid input detected.")
     else:
-        print_grid(grid)
+        print_grid(user_grid)
 
-        for row in range(9):
-            print(f"Row #{row + 1}")
-            for col in range(9):
-                if grid[row][col] is not None:
+        for cur_row in range(9):
+            print(f"Row #{cur_row + 1}")
+            for cur_col in range(9):
+                if user_grid[cur_row][cur_col] is not None:
                     continue
 
-                print(f"\tCol #{col + 1}: ", end="")
-                print(get_possible_digits(grid, row, col))
+                print(f"\tCol #{cur_col + 1}: ", end="")
+                print(get_possible_digits(user_grid, cur_row, cur_col))
+
+        print(f"Grid solved: {is_solved(user_grid)}")
