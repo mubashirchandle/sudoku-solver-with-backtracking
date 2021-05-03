@@ -60,18 +60,24 @@ def is_digit_placement_valid(grid, digit, row, col):
     """Checks if the digit can be placed in the given row and col."""
 
     for i in range(9):
-        if grid[row][i] == digit:
+        if i != col and grid[row][i] == digit:
             return False
-        if grid[i][col] == digit:
+        if i != row and grid[i][col] == digit:
             return False
+
+    # Temporarily write some random value at the cell.
+    old_value = grid[row][col]
+    grid[row][col] = 0
 
     sub_square = grid[(row // 3) * 3 : (row // 3) * 3 + 3]
     sub_square = [x[(col // 3) * 3 : (col // 3) * 3 + 3] for x in sub_square]
     sub_square = [digit for x in sub_square for digit in x]
 
     if digit in sub_square:
+        grid[row][col] = old_value  # Write the original value back.
         return False
 
+    grid[row][col] = old_value  # Write the original value back.
     return True
 
 
@@ -95,13 +101,11 @@ def is_solved(grid):
     """Returns True if the given grid is solved correctly, False otherwise."""
     for row in range(9):
         for col in range(9):
-            if grid[row][col] is None:
+            digit = grid[row][col]
+            if digit is None:
                 return False
-            for k in range(9):
-                if col == k:
-                    continue
-                if grid[row][k] == grid[row][col]:
-                    return False
+            if not is_digit_placement_valid(grid, digit, row, col):
+                return False
 
     return True
 
@@ -116,21 +120,73 @@ def has_empty_cells(grid):
     return False
 
 
+def get_all_possible_digits(grid):
+    possibilities = {}
+    for row in range(9):
+        for col in range(9):
+            possibilities[(row, col)] = get_possible_digits(grid, row, col)
+
+    return possibilities
+
+
+def solve_grid(grid):
+    if is_solved(grid):
+        return grid
+    if not has_empty_cells(grid):
+        raise ValueError(
+            "The grid is not solved and also does not have any empty cells"
+        )
+
+    found = False
+    i = 0
+    while not found and i < 9:
+        j = 0
+        while not found and j < 9:
+            if grid[i][j] is None:
+                row = i
+                col = j
+                found = True
+            j += 1
+        i += 1
+
+    digits = get_possible_digits(grid, row, col)
+
+    for digit in digits:
+        grid[row][col] = digit
+
+        solve_grid(grid)
+        if is_solved(grid):
+            break
+
+        grid[row][col] = None
+
+    return grid
+
+
 if __name__ == "__main__":
-    user_grid = get_puzzle_state_from_user()
+    # user_grid = get_puzzle_state_from_user()
 
-    if not user_grid:
-        print("Invalid input detected.")
-    else:
-        print_grid(user_grid)
+    user_grid = [
+        [None, 1, None, 4, 2, 6, 8, None, None],
+        [None, 5, None, None, None, 1, None, None, 3],
+        [None, 6, 2, 3, None, 5, 4, None, 1],
+        [6, None, None, 5, None, None, 2, None, None],
+        [1, 4, 3, 2, None, 8, 9, 7, 5],
+        [None, None, 5, None, None, 4, None, None, 8],
+        [5, None, 6, 1, None, 2, 7, 8, None],
+        [2, None, None, 9, None, None, None, 4, None],
+        [None, None, 4, 6, 8, 3, None, 1, None],
+    ]
 
-        for cur_row in range(9):
-            print(f"Row #{cur_row + 1}")
-            for cur_col in range(9):
-                if user_grid[cur_row][cur_col] is not None:
-                    continue
+    print_grid(user_grid)
 
-                print(f"\tCol #{cur_col + 1}: ", end="")
-                print(get_possible_digits(user_grid, cur_row, cur_col))
+    print("\n\n")
+    print("-" * 41)
+    print("Solved Grid:")
+    solve_grid(user_grid)
+    print_grid(user_grid)
 
-        print(f"Grid solved: {is_solved(user_grid)}")
+    # if not user_grid:
+    #     print("Invalid input detected.")
+    # else:
+    #     print_grid(user_grid)
