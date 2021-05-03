@@ -164,29 +164,16 @@ def solve_grid(grid):
 
 
 if __name__ == "__main__":
-    # user_grid = get_puzzle_state_from_user()
+    user_grid = get_puzzle_state_from_user()
 
-    user_grid = [
-        [None, 1, None, 4, 2, 6, 8, None, None],
-        [None, 5, None, None, None, 1, None, None, 3],
-        [None, 6, 2, 3, None, 5, 4, None, 1],
-        [6, None, None, 5, None, None, 2, None, None],
-        [1, 4, 3, 2, None, 8, 9, 7, 5],
-        [None, None, 5, None, None, 4, None, None, 8],
-        [5, None, 6, 1, None, 2, 7, 8, None],
-        [2, None, None, 9, None, None, None, 4, None],
-        [None, None, 4, 6, 8, 3, None, 1, None],
-    ]
+    if not user_grid:
+        print("Invalid input detected.")
+    else:
+        print_grid(user_grid)
 
-    print_grid(user_grid)
+        print("\n\n")
+        print("-" * 41)
+        print("Solved Grid:")
 
-    print("\n\n")
-    print("-" * 41)
-    print("Solved Grid:")
-    solve_grid(user_grid)
-    print_grid(user_grid)
-
-    # if not user_grid:
-    #     print("Invalid input detected.")
-    # else:
-    #     print_grid(user_grid)
+        solve_grid(user_grid)
+        print_grid(user_grid)
