@@ -129,23 +129,36 @@ def get_all_possible_digits(grid):
     return possibilities
 
 
-def solve_grid(grid):
+def get_single_possibility_cell(grid):
+    for row in range(9):
+        for col in range(9):
+            if grid[row][col] is not None:
+                continue
+
+            possibilities = get_possible_digits(grid, row, col)
+            if len(possibilities) == 1:
+                return row, col, possibilities[0]
+
+    return None
+
+
+def _solve_recursively(grid):
     if is_solved(grid):
-        return grid
+        return
     if not has_empty_cells(grid):
         raise ValueError(
             "The grid is not solved and also does not have any empty cells"
         )
 
-    found = False
+    found_empty_cell = False
     i = 0
-    while not found and i < 9:
+    while not found_empty_cell and i < 9:
         j = 0
-        while not found and j < 9:
+        while not found_empty_cell and j < 9:
             if grid[i][j] is None:
                 row = i
                 col = j
-                found = True
+                found_empty_cell = True
             j += 1
         i += 1
 
@@ -154,13 +167,25 @@ def solve_grid(grid):
     for digit in digits:
         grid[row][col] = digit
 
-        solve_grid(grid)
+        _solve_recursively(grid)
         if is_solved(grid):
             break
 
         grid[row][col] = None
 
-    return grid
+
+def solve_grid(grid):
+    # Fill in all the cells that have a single possible answer.
+    while True:
+        response = get_single_possibility_cell(grid)
+        if response is None:
+            break
+
+        row, col, correct_digit = response
+        grid[row][col] = correct_digit
+
+    # Fill in the cells that require guessing.
+    _solve_recursively(grid)
 
 
 if __name__ == "__main__":
